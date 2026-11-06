@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "zt-access-seat-chargeback",
+  "account_id": "<account_id>",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": { "enabled": true, "head_sampling_rate": 1, "issues": { "enabled": true } },
+  "limits": { "cpu_ms": 300000 },
+  "vars": {
+    "LOOKBACK_DAYS": "3",
+    "BATCH_SIZE": "100",
+    "MAX_PAGES_PER_RUN": "10",
+    "LOG_PREFIX": "",
+    "OWNER_TAG_KEY": "owner_team",
+    "EXCLUDED_APP_UUIDS": "",
+    "ADMIN_EMAILS": "admin1@example.com",
+    "MAIN_ADMIN_EMAILS": "owner-admin@example.com",
+    "SESSION_ASSUMPTION": "24h",
+    "METHOD_VERSION": "access-logins-v1",
+    "ACCOUNT_ID": "<account_id>"
+  },
+  "workflows": [
+    {
+      "name": "zt-access-seat-chargeback-ingest",
+      "binding": "INGEST_WORKFLOW",
+      "class_name": "IngestWorkflow",
+      "schedules": ["0 2 * * *"]
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "LOG_BUCKET", "bucket_name": "<logpush-r2-bucket>" }
+  ],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "zt-access-seat-chargeback", "database_id": "<database_id>", "migrations_dir": "migrations" }
+  ],
+  "access": {
+    "dev": { "aud": "local-dev", "identity": { "email": "admin@example.com", "name": "Local Admin" } }
+  }
+}
